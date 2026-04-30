@@ -3,8 +3,12 @@
 data/raw/
 
 # You can choose to ignore processed data if it gets too large:
-# data/processed/
+data/processed/*.csv
 data/processed/preprocessing_log.txt
+
+# --- Models ---
+# Ignore serialized model files to prevent large binary blobs
+models/*.pkl
 
 # --- Python ---
 __pycache__/

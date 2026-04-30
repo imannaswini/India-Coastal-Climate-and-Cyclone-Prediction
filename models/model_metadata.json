@@ -1,0 +1,27 @@
+{
+  "model_type": "RandomForest",
+  "best_params": {
+    "max_depth": 15,
+    "min_samples_leaf": 2,
+    "n_estimators": 200
+  },
+  "f1_cyclone_class": 0.5788651743883394,
+  "roc_auc": 0.9603816172394679,
+  "training_date": "2026-04-23",
+  "training_data_rows": 47280,
+  "positive_examples": 3280,
+  "features_used": [
+    "sst",
+    "wind_speed",
+    "pressure",
+    "rainfall",
+    "sst_above_threshold",
+    "sst_danger_zone",
+    "pressure_anomaly",
+    "low_pressure_flag",
+    "high_wind_flag",
+    "distance_from_equator",
+    "bay_of_bengal_flag",
+    "arabian_sea_flag"
+  ]
+}
