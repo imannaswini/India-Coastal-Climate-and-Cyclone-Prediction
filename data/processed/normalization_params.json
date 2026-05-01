@@ -17,5 +17,14 @@
   },
   "risk_score_max": 10,
   "created_at": "2026-04-21T21:28:09.979036",
-  "note": "Use identical min/max on live API data during inference"
+  "note": "Use identical min/max on live API data during inference",
+  "regional_pressure_means": {
+    "Andhra Pradesh": 1012.9865910456731,
+    "Gujarat": 1013.5414527154738,
+    "Kerala": 1010.8687218560112,
+    "Maharashtra": 1011.9264401522549,
+    "Odisha Coast": 1013.8823678152902,
+    "Tamil Nadu": 1011.7690533893864,
+    "West Bengal": 1014.0377735811121
+  }
 }

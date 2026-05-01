@@ -5,7 +5,11 @@ data/raw/
 # You can choose to ignore processed data if it gets too large:
 data/processed/*.csv
 data/processed/preprocessing_log.txt
+data/pipeline_errors.log
 
+# Ignore live databases and dynamic state files
+data/*.db
+data/alerts/*.json
 # --- Models ---
 # Ignore serialized model files to prevent large binary blobs
 models/*.pkl
