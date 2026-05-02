@@ -232,13 +232,35 @@ def get_region_history_enriched(region, days=30):
     conn = get_connection()
     c = conn.cursor()
     time_limit = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-    c.execute('''
-        SELECT p.*, r.rainfall as raw_rain, r.wind_speed as raw_wind, r.pressure as raw_pressure, r.sst as raw_sst
-        FROM predictions p
-        LEFT JOIN live_readings r ON p.region = r.region AND p.timestamp = r.timestamp
-        WHERE p.region = ? AND p.timestamp >= ? 
-        ORDER BY p.timestamp ASC
-    ''', (region, time_limit))
+    
+    if region == "All":
+        c.execute('''
+            SELECT 
+                p.timestamp,
+                'National' as region,
+                AVG(p.risk_score) as risk_score,
+                'N/A' as risk_level,
+                AVG(p.ml_probability) as ml_probability,
+                AVG(p.final_probability) as final_probability,
+                AVG(r.rainfall) as raw_rain,
+                AVG(r.wind_speed) as raw_wind,
+                AVG(r.pressure) as raw_pressure,
+                AVG(r.sst) as raw_sst
+            FROM predictions p
+            LEFT JOIN live_readings r ON p.region = r.region AND p.timestamp = r.timestamp
+            WHERE p.timestamp >= ? 
+            GROUP BY p.timestamp
+            ORDER BY p.timestamp ASC
+        ''', (time_limit,))
+    else:
+        c.execute('''
+            SELECT p.*, r.rainfall as raw_rain, r.wind_speed as raw_wind, r.pressure as raw_pressure, r.sst as raw_sst
+            FROM predictions p
+            LEFT JOIN live_readings r ON p.region = r.region AND p.timestamp = r.timestamp
+            WHERE p.region = ? AND p.timestamp >= ? 
+            ORDER BY p.timestamp ASC
+        ''', (region, time_limit))
+        
     rows = c.fetchall()
     conn.close()
     return [dict(r) for r in rows]

@@ -1,77 +1,73 @@
-# COASTGUARD | India Coastal Climate & Cyclone Prediction
+# 🛡️ COASTGUARD: Enterprise Risk Intelligence
 
-COASTGUARD is a premium, enterprise-grade SaaS platform designed for real-time surveillance and predictive intelligence of cyclonic threats along the Indian coastline. 
+**COASTGUARD** is a high-fidelity, real-time cyclonic surveillance and coastal risk intelligence platform. Designed for maritime safety and operational command, it transforms raw meteorological satellite data into actionable predictive insights via a state-of-the-art glassmorphic dashboard.
 
-![Dashboard Preview](https://img.icons8.com/fluency/96/tsunami.png)
+---
 
-## 💎 Features
+## 🚀 Key Modernizations (v2.1 "Apex")
 
-- **Operational Risk Center**: Real-time AI surveillance with a high-fidelity geospatial risk matrix.
-- **Interactive Geospatial Intelligence**: Dual-mode interactive map (Survey/Satellite) powered by Leaflet.js with pulsing high-risk indicators.
-- **Deep Analytics Hub**: 30-day historical correlation analysis of Pressure, Wind, and Sea Surface Temperature (SST).
-- **Emergency Broadcast Center**: Automated alert grid with severity filtering and operational advisories.
-- **ML Intelligence Engine**: Multi-source data ingestion (NASA POWER, Open-Meteo) feeding a predictive model for precise risk probability.
+### 📊 Apex Intelligence Analytics
+*   **Weather Intelligence Charts**: Implemented a "Windy/NASA" style visualization suite featuring dual-axis climate correlation (Risk Index vs. SST).
+*   **Neon Path Dynamics**: High-contrast Cyber-Orange and Electric-Blue lines with neon glow (`shadowBlur`) for maximum anomaly visibility.
+*   **Stratified Risk Zones**: Horizontal background context zones (Safe/Advisory/Alert) providing instant situational awareness.
+*   **Glass HUD Tooltips**: Minimalist floating HUDs with dynamic status indicators (`[ ALERT ]`, `[ WARN ]`, `[ OK ]`).
 
-## 🛠️ Tech Stack
+### 🌐 Geospatial Intelligence
+*   **White-Theme Map Array**: Transitioned to a high-visibility light geospatial theme for superior landmark contrast.
+*   **Micro-Marker Precision**: Reduced marker scale by 50% for a cleaner, high-density visualization of the 7 primary coastal sectors.
+*   **Instant Sector Injection**: Click-to-focus interactivity that synchronizes telemetry and analytics with the map's focal point.
 
-- **Frontend**: HTML5, CSS3 (Premium Glassmorphism), JavaScript (Vanilla), Leaflet.js, Chart.js.
-- **Backend**: Python 3.x, FastAPI, Uvicorn.
-- **Database**: SQLite3 with Row-level tracking.
-- **Data Pipeline**: Automated ingestion and ML inference engine.
+### 📡 Real-Time Data Pipeline
+*   **Automated Sync Engine**: Removed manual sync buttons; the platform now features a 60-second background auto-refresh to maintain data freshness.
+*   **National Aggregation**: A dedicated "National Overview" mode that computes arithmetic means for risk, pressure, and rain across all sectors.
+*   **High-Precision Telemetry**: 
+    *   **24h Rain Accumulation**: Track total daily moisture levels.
+    *   **Absolute Pressure**: Direct hPa monitoring (not just deltas).
+    *   **3-Decimal Fidelity**: Ultra-precise readings for SST and wind intensity.
 
-## 🚀 Getting Started
+---
 
-### Prerequisites
-- Python 3.8+
-- Node.js (for `npx live-server`, or any static web server)
+## 🛠️ Technical Architecture
 
-### Installation
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd India-Coastal-Climate-and-Cyclone-Prediction
-   ```
+*   **Frontend**: HTML5, CSS3 (Enterprise Glassmorphism), Vanilla JavaScript (ES6+), Leaflet.js, Chart.js.
+*   **Backend**: Python 3.x, FastAPI (Asynchronous), Uvicorn.
+*   **Database**: SQLite3 with advanced aggregation and history tracking.
+*   **Data Pipeline**: Automated ingestion, feature engineering, and live ML inference engine.
 
-2. **Setup Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+---
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🚦 Getting Started
 
-### Running the System
-1. **Start the FastAPI Backend**:
-   ```bash
-   python api.py
-   ```
-   The API will be available at `http://127.0.0.1:8000`.
+1.  **Start the Backend**:
+    ```bash
+    python api.py
+    ```
+2.  **Launch the Control Center**:
+    Open `dashboard_ui/index.html` via a local server (e.g., `npx live-server`).
+3.  **Automatic Initialization**:
+    The system will automatically trigger a data sync upon the first load to ensure you are viewing the most recent meteorological cycle.
 
-2. **Launch the Dashboard**:
-   ```bash
-   cd dashboard_ui
-   npx live-server
-   ```
-   Access the UI at `http://127.0.0.1:8080`.
+---
 
 ## 📂 Project Structure
 
 ```text
-├── api.py              # FastAPI Backend Server
-├── dashboard_ui/       # Premium Web Interface
-│   ├── index.html      # Main Dashboard Structure
-│   ├── styles.css      # SaaS Design System
-│   └── script.js       # Real-time Logic & Map Integration
-├── pipeline/           # ML & Data Ingestion Pipeline
-│   ├── ingestion.py    # Multi-source Data Fetching
-│   ├── inference.py    # Risk Assessment Logic
-│   └── train.py        # Model Training Scripts
-├── database/           # SQLite Schema & DB Controllers
-└── data/               # Processed & Raw Telemetry Storage
+├── api.py              # FastAPI Backend (REST Endpoints)
+├── dashboard_ui/       # Enterprise Dashboard
+│   ├── index.html      # Glassmorphic UI Structure
+│   ├── styles.css      # Design System & UI Tokens
+│   └── script.js       # Real-time Core & Chart Orchestration
+├── pipeline/           # Data Intelligence Layer
+│   ├── ingestion.py    # Satellite API Ingestion (NASA/Meteo)
+│   ├── inference.py    # Live Risk Calculation & ML Scoring
+│   ├── scheduler.py    # Background Pipeline Orchestrator
+│   └── alerts.py       # Rule-based Emergency Logic
+├── database/           # Persistence Layer
+│   └── db.py           # SQLite Aggregation & CRUD Operations
+└── data/               # Meteorological Intelligence Storage
 ```
 
+---
+
 ## 🛡️ License
-Copyright © 2024 COASTGUARD Enterprise Operations. All rights reserved.
+Copyright © 2026 COASTGUARD Enterprise Operations. All rights reserved.

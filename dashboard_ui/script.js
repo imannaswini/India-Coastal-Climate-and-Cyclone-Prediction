@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSeverityFilter = "all";
 
     // --- Map Initialization ---
-    const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CARTO'
     });
     const satelliteTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -118,6 +118,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Operational Dashboard Logic ---
     async function initSystem() {
         try {
+            // Automatic Sync on load
+            const statusIndicator = document.querySelector('.status-indicator span');
+            if (statusIndicator) statusIndicator.textContent = 'SYSTEM SYNCING...';
+            
+            try {
+                await fetch(`${API_BASE}/sync`, { method: 'POST' });
+            } catch (syncErr) {
+                console.warn('Initial sync failed, using cached data.', syncErr);
+            }
+            
+            if (statusIndicator) statusIndicator.textContent = 'SYSTEM SYNC ACTIVE';
+
             const [preds, reads, alerts] = await Promise.all([
                 fetch(`${API_BASE}/predictions`).then(res => res.json()),
                 fetch(`${API_BASE}/readings`).then(res => res.json()),
@@ -128,24 +140,73 @@ document.addEventListener('DOMContentLoaded', () => {
             latestAlerts = alerts;
 
             if (latestPredictions.length > 0) {
-                renderNationalOverview();
+                renderKPIs(currentRegion);
                 plotGeospatialRisk();
                 syncAllViews(currentRegion);
             }
-        } catch (e) { console.error('System Offline:', e); }
+        } catch (e) { 
+            console.error('System Offline:', e); 
+            const statusIndicator = document.querySelector('.status-indicator span');
+            if (statusIndicator) statusIndicator.textContent = 'SYSTEM OFFLINE';
+        }
     }
 
-    function renderNationalOverview() {
-        const top = [...latestPredictions].sort((a, b) => b.final_probability - a.final_probability)[0];
-        const avg = (latestPredictions.reduce((acc, p) => acc + p.final_probability, 0) / latestPredictions.length) * 100;
+    // --- Realtime Auto-Refresh (Every 60s) ---
+    setInterval(async () => {
+        try {
+            const [preds, reads, alerts] = await Promise.all([
+                fetch(`${API_BASE}/predictions`).then(res => res.json()),
+                fetch(`${API_BASE}/readings`).then(res => res.json()),
+                fetch(`${API_BASE}/alerts`).then(res => res.json())
+            ]);
+            latestPredictions = preds;
+            latestReadings = reads;
+            latestAlerts = alerts;
+            
+            renderKPIs(currentRegion);
+            plotGeospatialRisk();
+            syncAllViews(currentRegion);
+        } catch (e) { console.warn('Background Refresh Failed'); }
+    }, 60000);
 
+    function renderKPIs(regionName = "All") {
         const kpis = document.querySelectorAll('.kpi-value');
-        animateValue(kpis[0], 0, avg, 1500);
-        animateValue(kpis[1], 0, latestPredictions.filter(p => p.risk_level !== 'Low').length, 1200);
-        animateValue(kpis[2], 0, top.final_probability * 100, 1500);
-        animateValue(kpis[3], 0, latestAlerts.length, 1000);
+        const labels = document.querySelectorAll('.kpi-label');
+        const metas = document.querySelectorAll('.kpi-meta');
 
-        document.getElementById('topRiskRegion').textContent = `${top.region} (Critical)`;
+        if (regionName === "All") {
+            const top = [...latestPredictions].sort((a, b) => b.final_probability - a.final_probability)[0];
+            const avg = (latestPredictions.reduce((acc, p) => acc + p.final_probability, 0) / latestPredictions.length) * 100;
+            
+            labels[0].textContent = "National Prob. Index";
+            animateValue(kpis[0], 0, avg, 1000);
+            
+            labels[1].textContent = "Active Threat Vectors";
+            animateValue(kpis[1], 0, latestPredictions.filter(p => p.risk_level !== 'Low').length, 1000);
+            
+            labels[2].textContent = "Peak Sector Risk";
+            animateValue(kpis[2], 0, top.final_probability * 100, 1000);
+            document.getElementById('topRiskRegion').textContent = `${top.region} (${top.risk_level})`;
+            
+            labels[3].textContent = "Automated Broadcasts";
+            animateValue(kpis[3], 0, latestAlerts.length, 1000);
+        } else {
+            const p = latestPredictions.find(d => d.region === regionName);
+            const r_alerts = latestAlerts.filter(a => a.region === regionName);
+            
+            labels[0].textContent = "Regional Prob. Index";
+            animateValue(kpis[0], 0, p ? p.final_probability * 100 : 0, 1000);
+            
+            labels[1].textContent = "Regional Threats";
+            animateValue(kpis[1], 0, p && p.risk_level !== 'Low' ? 1 : 0, 1000);
+            
+            labels[2].textContent = "Sector Risk Level";
+            animateValue(kpis[2], 0, p ? p.final_probability * 100 : 0, 1000);
+            document.getElementById('topRiskRegion').textContent = p ? `${p.region} (${p.risk_level})` : 'Unknown';
+            
+            labels[3].textContent = "Sector Broadcasts";
+            animateValue(kpis[3], 0, r_alerts.length, 1000);
+        }
     }
 
     function plotGeospatialRisk() {
@@ -154,12 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const coords = REGIONS_DATA[p.region];
             if (coords) {
                 const color = p.risk_level === 'High' ? '#ef4444' : (p.risk_level === 'Moderate' ? '#f59e0b' : '#10b981');
-                const radius = (p.final_probability * 50) + 12;
+                const radius = (p.final_probability * 25) + 6;
 
                 const circle = L.circleMarker([coords.lat, coords.lon], {
                     radius: radius,
                     fillColor: color,
-                    color: 'rgba(255,255,255,0.2)',
+                    color: 'rgba(0,0,0,0.1)',
                     weight: 2,
                     opacity: 1,
                     fillOpacity: 0.75
@@ -168,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 circle.bindPopup(`
                     <div style="text-align:center; font-family:'Space Mono',monospace; font-size:0.75rem;">
                         <b style="font-family:'Plus Jakarta Sans',sans-serif; font-size:0.9rem; display:block; margin-bottom:4px;">${p.region}</b>
-                        <span style="color:#60a5fa;">${(p.final_probability * 100).toFixed(1)}% Risk Prob.</span>
+                        <span style="color:#2563eb;">${(p.final_probability * 100).toFixed(1)}% Risk Prob.</span>
                     </div>
                 `);
                 circle.on('click', () => { currentRegion = p.region; globalSelector.value = p.region; syncAllViews(p.region); });
@@ -183,9 +244,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const bannerText = document.getElementById('bannerText');
 
         title.textContent = regionName.toUpperCase();
+        renderKPIs(regionName);
 
         if (regionName === "All") {
-            list.innerHTML = '<div class="telemetry-placeholder">Select a coastal sector for live telemetry injection.</div>';
+            const avgSST = latestReadings.reduce((acc, r) => acc + r.sst, 0) / latestReadings.length;
+            const avgWind = latestReadings.reduce((acc, r) => acc + r.wind_speed, 0) / latestReadings.length;
+            const avgPress = latestReadings.reduce((acc, r) => acc + r.pressure, 0) / latestReadings.length;
+            const avgRain = latestReadings.reduce((acc, r) => acc + r.rainfall, 0) / latestReadings.length;
+
+            list.innerHTML = `
+                <div class="telemetry-row"><span>SST (Satellite Avg)</span><strong>${avgSST.toFixed(3)} °C</strong></div>
+                <div class="telemetry-row"><span>Wind Intensity Avg</span><strong>${avgWind.toFixed(3)} kn</strong></div>
+                <div class="telemetry-row"><span>Atm. Pressure Avg</span><strong>${avgPress.toFixed(3)} hPa</strong></div>
+                <div class="telemetry-row"><span>Rain Accumulation Avg</span><strong>${avgRain.toFixed(3)} mm</strong></div>
+            `;
             map.flyTo([18, 82], 5);
             bannerText.textContent = "Global surveillance active. Monitoring multi-source satellite arrays.";
         } else {
@@ -193,10 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const p = latestPredictions.find(d => d.region === regionName);
             if (r) {
                 list.innerHTML = `
-                    <div class="telemetry-row"><span>SST (Satellite)</span><strong>${r.sst} °C</strong></div>
-                    <div class="telemetry-row"><span>Wind Intensity</span><strong>${r.wind_speed} kn</strong></div>
-                    <div class="telemetry-row"><span>Atm. Pressure</span><strong>${r.pressure} hPa</strong></div>
-                    <div class="telemetry-row"><span>Rain Accumulation</span><strong>${r.rainfall} mm</strong></div>
+                    <div class="telemetry-row"><span>SST (Satellite)</span><strong>${r.sst.toFixed(3)} °C</strong></div>
+                    <div class="telemetry-row"><span>Wind Intensity</span><strong>${r.wind_speed.toFixed(3)} kn</strong></div>
+                    <div class="telemetry-row"><span>Atm. Pressure</span><strong>${r.pressure.toFixed(3)} hPa</strong></div>
+                    <div class="telemetry-row"><span>Rain Accumulation</span><strong>${r.rainfall.toFixed(3)} mm</strong></div>
                 `;
             }
             if (p) {
@@ -209,14 +281,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Deep Analytics Engine ---
     async function loadAnalyticsData() {
-        const region = currentRegion === "All" ? latestPredictions[0].region : currentRegion;
-        document.getElementById('analyticsRegionName').textContent = region;
+        const region = currentRegion;
+        const displayLabel = region === "All" ? "National Overview" : region;
+        document.getElementById('analyticsRegionName').textContent = displayLabel;
 
         try {
             const history = await fetch(`${API_BASE}/history/${encodeURIComponent(region)}`).then(res => res.json());
             if (history.length > 0) {
-                renderIntelligenceCharts(history, region);
-                generateInsights(history, region);
+                renderIntelligenceCharts(history, displayLabel);
+                generateInsights(history, displayLabel);
             }
         } catch (e) { console.error('Analytics Fetch Error:', e); }
     }
@@ -228,8 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const dev = (latestP - avgP).toFixed(1);
 
         document.getElementById('histPeakRisk').textContent = `${peak.toFixed(1)}%`;
-        document.getElementById('pressureTrend').textContent = `${dev > 0 ? '+' : ''}${dev} hPa`;
-        document.getElementById('windIntensity').textContent = `${Math.max(...data.map(d => d.raw_wind))} kn`;
+        document.getElementById('pressureValue').textContent = `${latestP.toFixed(1)} hPa`;
+        document.getElementById('windIntensity').textContent = `${Math.max(...data.map(d => d.raw_wind)).toFixed(1)} kn`;
 
         document.getElementById('intelligenceSummary').innerHTML =
             `Analysis for <strong>${region}</strong>: Current pressure deviation of ${dev} hPa against a 30-day peak risk of ${peak.toFixed(1)}%
@@ -295,35 +368,55 @@ document.addEventListener('DOMContentLoaded', () => {
         const chartDefaults = {
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { top: 30, bottom: 10, left: 20, right: 20 } },
             interaction: { intersect: false, mode: 'index' },
             plugins: {
                 legend: {
                     display: true, position: 'top', align: 'end',
                     labels: {
-                        usePointStyle: true, pointStyle: 'circle', padding: 20,
-                        font: { size: 11, weight: '600', family: "'Plus Jakarta Sans', sans-serif" },
-                        color: '#4a6fa5'
+                        usePointStyle: true, pointStyle: 'rectRounded', padding: 30,
+                        font: { size: 12, weight: '700', family: "'JetBrains Mono'" },
+                        color: '#94a3b8'
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        low: { type: 'box', yMin: 0, yMax: 25, backgroundColor: 'rgba(34, 197, 94, 0.03)', borderWidth: 0 },
+                        mod: { type: 'box', yMin: 25, yMax: 50, backgroundColor: 'rgba(234, 179, 8, 0.03)', borderWidth: 0 },
+                        high: { type: 'box', yMin: 50, yMax: 100, backgroundColor: 'rgba(239, 68, 68, 0.03)', borderWidth: 0 }
                     }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(6, 13, 31, 0.95)',
-                    titleFont: { size: 12, weight: '700', family: "'Plus Jakarta Sans'" },
-                    bodyFont: { size: 11, family: "'Plus Jakarta Sans'" },
-                    padding: 12, cornerRadius: 8,
-                    borderColor: 'rgba(37,99,235,0.3)', borderWidth: 1,
-                    displayColors: true
+                    backgroundColor: 'rgba(6, 13, 31, 0.98)',
+                    titleColor: '#ffffff', bodyColor: '#94a3b8',
+                    titleFont: { size: 14, weight: '800', family: "'JetBrains Mono'" },
+                    bodyFont: { size: 12, family: "'JetBrains Mono'" },
+                    padding: 18, cornerRadius: 15,
+                    borderColor: 'rgba(255, 255, 255, 0.1)', borderWidth: 1,
+                    displayColors: true, boxPadding: 10,
+                    callbacks: {
+                        label: function(context) {
+                            let label = ` ${context.dataset.label}: `;
+                            label += context.parsed.y;
+                            if (context.dataset.label.includes('Risk')) {
+                                const val = context.parsed.y;
+                                label += val > 50 ? ' [ ALERT ]' : (val > 25 ? ' [ WARN ]' : ' [ OK ]');
+                            }
+                            return label;
+                        }
+                    }
                 }
             },
             scales: {
                 x: {
-                    grid: { display: false },
-                    ticks: { color: '#2d4a72', font: { size: 10 } },
-                    border: { color: 'rgba(255,255,255,0.04)' }
+                    grid: { display: true, color: 'rgba(255,255,255,0.02)', drawTicks: false },
+                    ticks: { color: '#475569', font: { size: 10, family: "'JetBrains Mono'" }, padding: 15 },
+                    border: { display: false }
                 },
                 y: {
-                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-                    ticks: { color: '#2d4a72', font: { size: 10 }, padding: 10 },
-                    border: { color: 'transparent' }
+                    grid: { color: 'rgba(255,255,255,0.02)', drawBorder: false },
+                    ticks: { color: '#475569', font: { size: 10, family: "'JetBrains Mono'" }, padding: 15 },
+                    border: { display: false }
                 }
             }
         };
@@ -334,16 +427,18 @@ document.addEventListener('DOMContentLoaded', () => {
             data: {
                 labels,
                 datasets: [{
-                    label: 'Risk Probability (%)',
+                    label: 'Risk Index (%)',
                     data: data.map(d => (d.final_probability * 100).toFixed(1)),
-                    borderColor: '#3b82f6',
-                    borderWidth: 2.5,
-                    backgroundColor: getGradient(ctx1, 'rgba(59, 130, 246, 0.25)'),
-                    fill: true, tension: 0.45,
-                    pointRadius: 0, pointHoverRadius: 5,
-                    pointHoverBackgroundColor: '#3b82f6',
-                    pointHoverBorderColor: '#060d1f',
-                    pointHoverBorderWidth: 2
+                    borderColor: '#ff7e00',
+                    borderWidth: 4,
+                    shadowBlur: 25, shadowColor: 'rgba(255, 126, 0, 0.6)',
+                    backgroundColor: getGradient(ctx1, 'rgba(255, 126, 0, 0.15)'),
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#ffffff',
+                    pointHoverBorderWidth: 4
                 }]
             },
             options: chartDefaults
@@ -356,17 +451,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 labels,
                 datasets: [
                     {
-                        label: 'Atm. Pressure (hPa)',
-                        data: data.map(d => d.raw_pressure),
-                        borderColor: '#60a5fa', borderWidth: 2,
-                        tension: 0.4, pointRadius: 0, pointHoverRadius: 4,
+                        label: 'Risk Index (%)',
+                        data: data.map(d => (d.final_probability * 100).toFixed(1)),
+                        borderColor: '#ff7e00',
+                        borderWidth: 4,
+                        shadowBlur: 15, shadowColor: 'rgba(255, 126, 0, 0.5)',
+                        backgroundColor: getGradient(ctx2, 'rgba(255, 126, 0, 0.1)'),
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 7,
                         yAxisID: 'y'
                     },
                     {
-                        label: 'Wind Speed (kn)',
-                        data: data.map(d => d.raw_wind),
-                        borderColor: '#06b6d4', borderWidth: 2,
-                        tension: 0.4, pointRadius: 0, pointHoverRadius: 4,
+                        label: 'SST Intensity (°C)',
+                        data: data.map(d => d.raw_sst.toFixed(1)),
+                        borderColor: '#00d2ff',
+                        borderWidth: 4,
+                        borderDash: [10, 5],
+                        shadowBlur: 15, shadowColor: 'rgba(0, 210, 255, 0.5)',
+                        backgroundColor: getGradient(ctx2, 'rgba(0, 210, 255, 0.05)'),
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 7,
                         yAxisID: 'y1'
                     }
                 ]
@@ -376,29 +484,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 scales: {
                     x: chartDefaults.scales.x,
                     y: {
-                        ...chartDefaults.scales.y, position: 'left',
-                        title: { display: true, text: 'Pressure', font: { size: 10, weight: '700' }, color: '#4a6fa5' }
+                        ...chartDefaults.scales.y,
+                        position: 'left',
+                        title: { display: true, text: 'Risk Index (%)', font: { size: 12, weight: '700' }, color: '#f97316' },
+                        suggestedMax: 100
                     },
                     y1: {
-                        type: 'linear', position: 'right',
+                        type: 'linear',
+                        position: 'right',
                         grid: { drawOnChartArea: false },
-                        ticks: { color: '#2d4a72', font: { size: 10 } },
-                        border: { color: 'transparent' },
-                        title: { display: true, text: 'Wind', font: { size: 10, weight: '700' }, color: '#4a6fa5' }
+                        ticks: { color: '#3b82f6', font: { size: 10, weight: '700' } },
+                        border: { display: false },
+                        title: { display: true, text: 'Sea Surface Temp (°C)', font: { size: 12, weight: '700' }, color: '#3b82f6' }
                     }
                 }
             }
         });
     }
 
-    // --- Global Sync Button ---
-    document.querySelector('.btn-refresh').addEventListener('click', async (e) => {
-        const btn = e.target;
-        btn.textContent = 'Syncing...'; btn.disabled = true;
-        try { await fetch(`${API_BASE}/sync`, { method: 'POST' }); initSystem(); }
-        catch (e) { alert('API Offline.'); }
-        finally { btn.textContent = 'Sync Data'; btn.disabled = false; }
-    });
+
 
     initSystem();
 });

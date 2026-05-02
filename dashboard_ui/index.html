@@ -75,7 +75,7 @@
                         <option value="West Bengal">West Bengal</option>
                     </select>
                 </div>
-                <button class="btn-refresh">Sync Data</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -173,8 +173,8 @@
                     <span id="histPeakRisk" class="sb-value">--</span>
                 </div>
                 <div class="stat-box">
-                    <span class="sb-label">Pressure Delta</span>
-                    <span id="pressureTrend" class="sb-value">--</span>
+                    <span class="sb-label">Atm. Pressure</span>
+                    <span id="pressureValue" class="sb-value">--</span>
                 </div>
                 <div class="stat-box">
                     <span class="sb-label">Max Gust Intensity</span>
@@ -233,6 +233,7 @@
 
     <!-- Core Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="script.js"></script>
 </body>

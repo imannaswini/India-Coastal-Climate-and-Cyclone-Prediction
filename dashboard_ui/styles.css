@@ -57,6 +57,7 @@ body {
 h1, h2, h3, h4, .brand-name { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; letter-spacing: -0.02em; }
 
 /* ─── Preloader ───────────────────────────────────────────────────────── */
+
 #preloader {
     position: fixed; inset: 0;
     background: var(--bg-base);
@@ -373,8 +374,8 @@ h1, h2, h3, h4, .brand-name { font-family: 'Plus Jakarta Sans', sans-serif; font
     background: var(--bg-surface);
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
-.leaflet-container { z-index: 1; background: #060d1f !important; }
-.leaflet-tile-pane { filter: brightness(0.9) saturate(0.7) hue-rotate(195deg); }
+.leaflet-container { z-index: 1; background: #f8fafc !important; }
+.leaflet-tile-pane { filter: none; }
 .leaflet-popup-content-wrapper {
     background: var(--bg-elevated) !important;
     color: var(--text-primary) !important;
@@ -461,12 +462,29 @@ h1, h2, h3, h4, .brand-name { font-family: 'Plus Jakarta Sans', sans-serif; font
 }
 
 .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+.chart-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+    transition: var(--transition);
+}
 .chart-card h3 {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);
-    padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
+    padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-subtle);
+    text-transform: uppercase; letter-spacing: 0.05em;
 }
-.canvas-holder { height: 300px; padding: 1.5rem; }
+.chart-card:hover {
+    border-color: var(--border);
+    box-shadow: var(--shadow-glow);
+}
+.canvas-holder { 
+    height: 320px; 
+    padding: 1.25rem; 
+    background: linear-gradient(180deg, rgba(6, 13, 31, 0.4) 0%, rgba(6, 13, 31, 0.8) 100%);
+    position: relative;
+}
 
 .summary-panel {
     display: flex; gap: 20px; padding: 1.75rem;
