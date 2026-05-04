@@ -3,67 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COASTGUARD | Enterprise Risk Intelligence</title>
-    <!-- Premium Fonts -->
+    <title>COASTGUARD | Weather Intelligence</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Map Library -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <link rel="stylesheet" href="styles.css">
-
-    <style>
-        #preloader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #060d1f; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .loader-spinner {
-            width: 44px; height: 44px; border: 3px solid rgba(37,99,235,0.18);
-            border-top: 3px solid #3b82f6; border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            box-shadow: 0 0 20px rgba(59,130,246,0.3);
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .loader-text {
-            margin-top: 18px; font-family: 'JetBrains Mono', monospace;
-            color: #60a5fa; font-size: 0.72rem; letter-spacing: 4px; text-transform: uppercase;
-        }
-    </style>
 </head>
-<body class="animate-fade">
-
-    <!-- System Preloader -->
-    <div id="preloader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">COASTGUARD OS</div>
+<body>
+    <div id="preloader" class="preloader">
+        <div class="loader-ring"></div>
+        <div class="loader-copy">
+            <span class="loader-title">COASTGUARD</span>
+            <span class="loader-subtitle">Loading live weather intelligence</span>
+        </div>
     </div>
 
-    <!-- Global Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <img src="https://img.icons8.com/fluency/48/tsunami.png" alt="CoastGuard Logo">
-                <div class="brand-text">
+    <div class="page-shell">
+        <nav class="topbar">
+            <div class="brand-block">
+                <div class="brand-mark">CG</div>
+                <div class="brand-copy">
                     <span class="brand-name">COASTGUARD</span>
-                    <span class="brand-tag">Risk Intelligence v4.1</span>
+                    <span class="brand-subtitle">Cyclone and coastal climate intelligence</span>
                 </div>
             </div>
 
             <ul class="nav-links">
-                <li class="active" data-tab="risk">Risk Overview</li>
-                <li data-tab="analytics">Deep Analytics</li>
-                <li data-tab="broadcast">Broadcast Center</li>
+                <li class="active" data-tab="dashboard">Dashboard</li>
+                <li data-tab="analytics">Analytics</li>
+                <li data-tab="alerts">Alerts</li>
             </ul>
 
-            <div class="nav-actions">
-                <div class="status-indicator">
-                    <div class="pulse-dot"></div>
-                    <span>SYSTEM SYNC ACTIVE</span>
+            <div class="topbar-actions">
+                <div class="status-pill">
+                    <span id="systemPulse" class="pulse-dot"></span>
+                    <span id="systemStatusText">SYNC ACTIVE</span>
                 </div>
-                <div class="v-divider"></div>
-                <div class="global-selector">
+                <div class="region-picker">
+                    <label for="stateSelect">Region</label>
                     <select id="stateSelect">
                         <option value="All">National Overview</option>
                         <option value="Andhra Pradesh">Andhra Pradesh</option>
@@ -75,163 +53,238 @@
                         <option value="West Bengal">West Bengal</option>
                     </select>
                 </div>
-                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <main class="dashboard-shell">
-
-        <!-- Tab: Risk Overview -->
-        <section id="risk" class="tab-content active">
-            <div class="page-header animate-reveal">
-                <h1>Operational Command Center</h1>
-                <p>AI-driven cyclonic surveillance &amp; real-time coastal risk matrix</p>
-            </div>
-
-            <!-- KPI Layer -->
-            <div class="kpi-grid">
-                <div class="kpi-card animate-reveal" style="animation-delay: 0.1s;">
-                    <div class="kpi-info">
-                        <span class="kpi-label">National Prob. Index</span>
-                        <span class="kpi-value counter" data-target="0">0%</span>
-                        <p class="kpi-meta positive">↑ 2.4% vs prev. session</p>
+        <main class="dashboard-shell">
+            <section id="dashboard" class="tab-content active">
+                <div class="hero-header">
+                    <div>
+                        <p class="eyebrow">Live Command View</p>
+                        <h1>Oceanic cyclone intelligence in one glance</h1>
+                        <p class="hero-copy">Real-time backend predictions, weather telemetry, and regional alert conditions presented in a premium weather-operations layout.</p>
                     </div>
-                </div>
-                <div class="kpi-card animate-reveal" style="animation-delay: 0.2s;">
-                    <div class="kpi-info">
-                        <span class="kpi-label">Active Threat Vectors</span>
-                        <span class="kpi-value counter" data-target="0">00</span>
-                        <p class="kpi-meta warning">Moderate alerts active</p>
-                    </div>
-                </div>
-                <div class="kpi-card featured animate-reveal" style="animation-delay: 0.3s;">
-                    <div class="kpi-info">
-                        <span class="kpi-label">Peak Sector Risk</span>
-                        <span class="kpi-value counter" data-target="0">0%</span>
-                        <p id="topRiskRegion" class="kpi-meta">Locating Sector...</p>
-                    </div>
-                </div>
-                <div class="kpi-card animate-reveal" style="animation-delay: 0.4s;">
-                    <div class="kpi-info">
-                        <span class="kpi-label">Automated Broadcasts</span>
-                        <span class="kpi-value counter" data-target="0">00</span>
-                        <p class="kpi-meta alert">Active surveillance</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Risk Intelligence Layer -->
-            <div id="riskBanner" class="global-advisory-banner animate-fade">
-                <span class="banner-tag">ADVISORY</span>
-                <span id="bannerText">Connecting to secure intelligence feeds...</span>
-            </div>
-
-            <div class="intelligence-grid">
-                <!-- Map Terminal -->
-                <div class="panel map-panel animate-reveal" style="animation-delay: 0.5s;">
-                    <div class="panel-header">
-                        <h3>Geospatial Risk Distribution</h3>
-                        <div class="map-controls-inline">
-                            <button id="mapSurvey" class="m-btn active">SURVEY</button>
-                            <button id="mapSat" class="m-btn">SAT</button>
+                    <div class="hero-status">
+                        <div class="meta-chip">
+                            <span class="meta-label">API Link</span>
+                            <strong id="apiLinkStatus">Connecting...</strong>
                         </div>
-                    </div>
-                    <div id="map" class="map-container"></div>
-                </div>
-
-                <!-- Telemetry Terminal -->
-                <div class="panel telemetry-panel animate-reveal" style="animation-delay: 0.6s;">
-                    <div class="panel-header">
-                        <h3>Sector Telemetry</h3>
-                        <span id="telemetryRegionName" class="sector-badge">NATIONAL</span>
-                    </div>
-                    <div id="indicatorList" class="telemetry-grid">
-                        <div class="telemetry-placeholder">Establishing satellite handshake...</div>
-                    </div>
-                    <div class="telemetry-footer">
-                        <div class="source-cluster">
-                            <span class="src-tag">NASA POWER</span>
-                            <span class="src-tag">OPEN-METEO</span>
-                            <span class="src-tag">NOAA SST</span>
+                        <div class="meta-chip">
+                            <span class="meta-label">Last Refresh</span>
+                            <strong id="lastRefreshStatus">--</strong>
+                        </div>
+                        <div class="meta-chip">
+                            <span class="meta-label">Pipeline Run</span>
+                            <strong id="pipelineRunStatus">--</strong>
+                        </div>
+                        <div class="meta-chip">
+                            <span class="meta-label">Run Duration</span>
+                            <strong id="pipelineDurationStatus">--</strong>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Tab: Deep Analytics -->
-        <section id="analytics" class="tab-content animate-reveal">
-            <div class="page-header">
-                <h1>Predictive Data Intelligence</h1>
-                <p>30-day historical correlation analysis for <span id="analyticsRegionName" class="hl">Global</span> metrics</p>
-            </div>
+                <div class="summary-grid">
+                    <article class="summary-card primary-card">
+                        <span class="summary-label">Cyclone Risk</span>
+                        <strong class="summary-value kpi-value" data-format="percent">0.0%</strong>
+                        <span id="topRiskRegion" class="summary-meta">Waiting for live model output</span>
+                    </article>
+                    <article class="summary-card">
+                        <span class="summary-label">Temperature</span>
+                        <strong class="summary-value kpi-value" data-format="number">00</strong>
+                        <span class="summary-meta">Sea surface temperature</span>
+                    </article>
+                    <article class="summary-card">
+                        <span class="summary-label">Pressure</span>
+                        <strong class="summary-value kpi-value" data-format="number">00</strong>
+                        <span class="summary-meta">Atmospheric pressure</span>
+                    </article>
+                    <article class="summary-card">
+                        <span class="summary-label">Wind Speed</span>
+                        <strong class="summary-value kpi-value" data-format="number">00</strong>
+                        <span class="summary-meta">Surface wind strength</span>
+                    </article>
+                </div>
 
-            <div class="insight-row">
-                <div class="stat-box">
-                    <span class="sb-label">Historical Peak</span>
-                    <span id="histPeakRisk" class="sb-value">--</span>
+                <div id="riskBanner" class="advisory-banner">
+                    <span class="banner-badge">STATUS</span>
+                    <span id="bannerText">Connecting to secure intelligence feeds...</span>
                 </div>
-                <div class="stat-box">
-                    <span class="sb-label">Atm. Pressure</span>
-                    <span id="pressureValue" class="sb-value">--</span>
-                </div>
-                <div class="stat-box">
-                    <span class="sb-label">Max Gust Intensity</span>
-                    <span id="windIntensity" class="sb-value">--</span>
-                </div>
-            </div>
 
-            <div class="analytics-grid">
-                <div class="panel chart-card">
-                    <h3>Risk Probability Trend (30d)</h3>
-                    <div class="canvas-holder"><canvas id="probabilityChart"></canvas></div>
-                </div>
-                <div class="panel chart-card">
-                    <h3>Meteorological Correlation Matrix</h3>
-                    <div class="canvas-holder"><canvas id="correlationChart"></canvas></div>
-                </div>
-            </div>
+                <div class="dashboard-grid">
+                    <section class="panel chart-panel feature-panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Live Forecast Graph</p>
+                                <h3>Risk and sea surface temperature</h3>
+                            </div>
+                            <span id="analyticsRegionName" class="panel-pill">National Overview</span>
+                        </div>
+                        <div class="panel-body chart-body">
+                            <canvas id="probabilityChart"></canvas>
+                        </div>
+                    </section>
 
-            <div class="panel summary-panel animate-fade">
-                <div class="summary-icon">🧠</div>
-                <div class="summary-content">
-                    <h4>Engine Intelligence Insight</h4>
-                    <p id="intelligenceSummary">Please select a monitoring sector to generate automated insights.</p>
+                    <aside class="panel alert-panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Priority Feed</p>
+                                <h3>Live Alerts</h3>
+                            </div>
+                            <span id="broadcastRegionName" class="panel-pill">All Sectors</span>
+                        </div>
+                        <div class="alert-filter-row">
+                            <button class="pill active" data-alert-type="all">All</button>
+                            <button class="pill" data-alert-type="cyclone">Cyclone</button>
+                            <button class="pill" data-alert-type="pressure">Pressure</button>
+                            <button class="pill" data-alert-type="wind">Wind</button>
+                            <button class="pill" data-alert-type="rain">Rain</button>
+                        </div>
+                        <div id="alertContainer" class="alert-list"></div>
+                    </aside>
+
+                    <section class="panel map-panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Leaflet Region Map</p>
+                                <h3>Risk markers by region</h3>
+                            </div>
+                            <div class="map-controls-inline">
+                                <button id="mapSurvey" class="m-btn active">Map</button>
+                                <button id="mapSat" class="m-btn">Satellite</button>
+                            </div>
+                        </div>
+                        <div id="map" class="map-container"></div>
+                    </section>
+
+                    <section class="panel telemetry-panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Live Metrics</p>
+                                <h3>Region telemetry</h3>
+                            </div>
+                            <span id="telemetryRegionName" class="panel-pill">NATIONAL</span>
+                        </div>
+                        <div id="indicatorList" class="telemetry-grid">
+                            <div class="telemetry-placeholder">Establishing satellite handshake...</div>
+                        </div>
+                    </section>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Tab: Broadcast Center -->
-        <section id="broadcast" class="tab-content animate-reveal">
-            <div class="header-split">
-                <div class="page-header">
-                    <h1>Operational Advisories</h1>
-                    <p>Emergency broadcasts for <span id="broadcastRegionName" class="hl">All Sectors</span></p>
+            <section id="analytics" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <p class="eyebrow">Deep Analytics</p>
+                        <h2>Readable weather trends and signal context</h2>
+                    </div>
                 </div>
-                <div class="filter-pills">
-                    <button class="pill active" data-severity="all">All Logs</button>
-                    <button class="pill" data-severity="high">Critical</button>
-                    <button class="pill" data-severity="moderate">Advisories</button>
+
+                <div class="insight-row">
+                    <div class="stat-box">
+                        <span class="sb-label">Peak Risk</span>
+                        <span id="histPeakRisk" class="sb-value">--</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="sb-label">Pressure</span>
+                        <span id="pressureValue" class="sb-value">--</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="sb-label">Wind Speed</span>
+                        <span id="windIntensity" class="sb-value">--</span>
+                    </div>
                 </div>
-            </div>
-            <div id="alertContainer" class="broadcast-grid"></div>
-        </section>
 
-    </main>
+                <div class="analytics-grid">
+                    <section class="panel chart-card">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Weather Overlay</p>
+                                <h3>Pressure, temperature, and wind</h3>
+                            </div>
+                        </div>
+                        <div class="panel-body chart-body compact-chart">
+                            <canvas id="correlationChart"></canvas>
+                        </div>
+                    </section>
+                    <section class="panel summary-panel">
+                        <div class="summary-icon">AI</div>
+                        <div class="summary-content">
+                            <h4>Operational Reading</h4>
+                            <p id="intelligenceSummary">Please select a monitoring region to generate automated insights.</p>
+                        </div>
+                    </section>
+                </div>
 
-    <footer class="main-footer">
-        <div class="footer-inner">
-            <span>© 2024 COASTGUARD · Enterprise Coastal Defense Platform</span>
-            <div class="footer-links">
-                <span>v4.1.0-STABLE</span>
-                <span>System Policy</span>
-                <span>Operations Support</span>
-            </div>
-        </div>
-    </footer>
+                <div class="spark-grid">
+                    <section class="panel spark-card">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Pressure Trend</p>
+                                <h3>Pressure history</h3>
+                            </div>
+                        </div>
+                        <div class="spark-wrap">
+                            <canvas id="pressureSpark"></canvas>
+                        </div>
+                    </section>
 
-    <!-- Core Dependencies -->
+                    <section class="panel spark-card">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Temperature Trend</p>
+                                <h3>SST history</h3>
+                            </div>
+                        </div>
+                        <div class="spark-wrap">
+                            <canvas id="tempSpark"></canvas>
+                        </div>
+                    </section>
+
+                    <section class="panel spark-card">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Wind Trend</p>
+                                <h3>Wind history</h3>
+                            </div>
+                        </div>
+                        <div class="spark-wrap">
+                            <canvas id="windSpark"></canvas>
+                        </div>
+                    </section>
+                </div>
+            </section>
+
+            <section id="alerts" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <p class="eyebrow">Alert Board</p>
+                        <h2>Alert categories and regional risk board</h2>
+                    </div>
+                </div>
+                <div class="alerts-layout">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <p class="panel-kicker">Live Alert Feed</p>
+                                <h3>Current broadcasts</h3>
+                            </div>
+                        </div>
+                        <div class="alert-filter-row alert-filter-row-wide">
+                            <button class="pill active" data-alert-type="all">All</button>
+                            <button class="pill" data-alert-type="cyclone">Cyclone</button>
+                            <button class="pill" data-alert-type="pressure">Pressure</button>
+                            <button class="pill" data-alert-type="wind">Wind</button>
+                            <button class="pill" data-alert-type="rain">Rain</button>
+                        </div>
+                        <div id="alertsOverview" class="broadcast-grid"></div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>

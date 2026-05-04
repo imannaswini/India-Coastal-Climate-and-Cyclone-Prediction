@@ -2,6 +2,8 @@ pandas
 numpy
 xarray
 netCDF4
+fastapi
+uvicorn
 scikit-learn
 xgboost
 imbalanced-learn
